@@ -1,38 +1,39 @@
-import { Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import Reservation, { IReservation } from '../models/Reservation';
 
-export const getReservations = async (req: Request, res: Response) => {
+export const getReservations: RequestHandler = async (req, res, next) => {
   try {
     const reservations: IReservation[] = await Reservation.find();
     res.json(reservations);
+    return;
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    return next(error);
   }
 };
-
-export const getReservationById = async (req: Request, res: Response) => {
+export const getReservationById: RequestHandler = async (req, res, next) => {
   try {
     const reservation: IReservation | null = await Reservation.findById(req.params.id);
     if (!reservation) {
-      return res.status(404).json({ message: 'Reservation not found' });
+      res.status(404).json({ message: 'Reservation not found' });
+      return;
     }
     res.json(reservation);
+    return;
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    return next(error);
   }
 };
-
-export const createReservation = async (req: Request, res: Response) => {
+export const createReservation: RequestHandler = async (req, res, next) => {
   try {
     const newReservation: IReservation = new Reservation(req.body);
     const savedReservation = await newReservation.save();
     res.status(201).json(savedReservation);
+    return;
   } catch (error) {
-    res.status(400).json({ message: 'Error creating reservation', error });
+    return next(error);
   }
 };
-
-export const updateReservationStatus = async (req: Request, res: Response) => {
+export const updateReservationStatus: RequestHandler = async (req, res, next) => {
   try {
     const { status } = req.body;
     const updatedReservation: IReservation | null = await Reservation.findByIdAndUpdate(
@@ -41,10 +42,13 @@ export const updateReservationStatus = async (req: Request, res: Response) => {
       { new: true }
     );
     if (!updatedReservation) {
-      return res.status(404).json({ message: 'Reservation not found' });
+      res.status(404).json({ message: 'Reservation not found' });
+      return;
     }
     res.json(updatedReservation);
+    return;
   } catch (error) {
-    res.status(400).json({ message: 'Error updating reservation status', error });
+    return next(error);
   }
 };
+
