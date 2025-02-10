@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express';
-import Car, { ICar } from '../models/car';
+import { RequestHandler } from 'express';
+import Car, { ICar } from '../models/Car';
 
 export const getAllCars: RequestHandler = async (req, res, next) => {
   try {
