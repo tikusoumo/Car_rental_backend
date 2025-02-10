@@ -10,7 +10,7 @@ This project is a backend API for a car rental application built with Node.js, E
 
 
 ## Installation
-
+```bash
 npm install
 
 Environment Variables:
