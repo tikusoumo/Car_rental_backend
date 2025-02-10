@@ -12,17 +12,18 @@ This project is a backend API for a car rental application built with Node.js, E
 ## Installation
 ```bash
 npm install
-
+```
 Environment Variables:
-
-MONGO_URI=mongodb://localhost:27017/rental
+```bash
+MONGO_URI=Your Own database 
 PORT=5000
-
+```
 Run the Application:
-
+```bash
 npm run start
-
+```
 API Endpoints
+```bash
 Cars
 GET /api/cars
 Retrieve all available cars.
@@ -50,10 +51,10 @@ Create a payment.
 
 POST /api/payments/webhook
 Endpoint for handling payment gateway webhooks.
-
+```
 Seeding Data
 To insert seed data into your MongoDB database, run:
-
+```bash
 npm run seed
-
+```
 This script will clear existing data and insert dummy data for users, cars, reservations, and payments.
