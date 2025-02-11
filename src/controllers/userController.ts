@@ -3,6 +3,16 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 import User, { IUser } from '../models/User';
 import bcrypt from 'bcrypt';
 
+//get all user
+export const getAllUsers: RequestHandler = async (req, res, next): Promise<void> => {
+  try {
+    const users = await User.find({});
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const registerUser: RequestHandler = async (req, res, next): Promise<void> => {
   try {
     const { name, email, password, phone, role } = req.body;

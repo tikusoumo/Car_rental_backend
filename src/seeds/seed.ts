@@ -51,7 +51,7 @@ const seedData = async () => {
     for (let i = 1; i <= 10; i++) {
       const car = new Car({
         make: carMakes[i % carMakes.length],
-        model: `${carModels[i % carModels.length]} ${i}`,
+        carModel: `${carModels[i % carModels.length]} ${i}`,
         rentalPrice: 40 + i, // variation in price
         availability: true,
         features: ['AC', i % 2 === 0 ? 'Automatic' : 'Manual'],
