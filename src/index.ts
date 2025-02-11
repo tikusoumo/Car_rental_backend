@@ -17,11 +17,13 @@ app.use(express.json());
 import carRoutes from './routes/carRoutes';
 import reservationRoutes from './routes/reservationRoutes';
 import paymentRoutes from './routes/paymentRoutes';
+import userRoutes from './routes/userRoutes';
 
 // Register routes
 app.use('/api/cars', carRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   res.send('Car Rental API');

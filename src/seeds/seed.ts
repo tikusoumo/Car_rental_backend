@@ -1,5 +1,7 @@
+// src/seeds/seed.ts
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 import Car from '../models/Car';
 import User from '../models/User';
 import Reservation from '../models/Reservation';
@@ -13,7 +15,7 @@ const seedData = async () => {
     await mongoose.connect(process.env.MONGO_URI as string);
     console.log('Connected to MongoDB');
 
-    // Clear existing collections (optional)
+    // Clear existing data (be careful in production)
     await Promise.all([
       Car.deleteMany({}),
       User.deleteMany({}),
@@ -22,75 +24,84 @@ const seedData = async () => {
     ]);
     console.log('Cleared existing data');
 
-    // Create dummy users
-    const user1 = new User({
-      name: 'John Doe',
-      email: 'john@example.com',
-      passwordHash: 'dummyhash123', // Dummy hash; in production use a proper hash!
-      phone: '1234567890',
-      role: 'customer',
-    });
+    // Define password values and hash them once for all users
+    const saltRounds = 10;
+    const plainPassword = 'password123';
+    const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
 
-    const user2 = new User({
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      passwordHash: 'dummyhash456',
-      phone: '0987654321',
-      role: 'customer',
-    });
+    // Create 10 dummy users
+    const users = [];
+    for (let i = 1; i <= 10; i++) {
+      const user = new User({
+        name: `User ${i}`,
+        email: `user${i}@example.com`,
+        passwordHash: hashedPassword,
+        phone: `123456789${i}`,
+        role: 'customer',
+      });
+      await user.save();
+      users.push(user);
+    }
+    console.log('10 Dummy users created');
 
-    await user1.save();
-    await user2.save();
-    console.log('Dummy users created');
+    // Create 10 dummy cars
+    const cars = [];
+    const carMakes = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan'];
+    const carModels = ['Model A', 'Model B', 'Model C', 'Model D', 'Model E'];
+    for (let i = 1; i <= 10; i++) {
+      const car = new Car({
+        make: carMakes[i % carMakes.length],
+        model: `${carModels[i % carModels.length]} ${i}`,
+        rentalPrice: 40 + i, // variation in price
+        availability: true,
+        features: ['AC', i % 2 === 0 ? 'Automatic' : 'Manual'],
+        location: i % 2 === 0 ? 'New York' : 'Los Angeles',
+        images: [`https://dummyimage.com/300x200?text=Car+${i}`],
+      });
+      await car.save();
+      cars.push(car);
+    }
+    console.log('10 Dummy cars created');
 
-    // Create dummy cars
-    const car1 = new Car({
-      make: 'Toyota',
-      carModel: 'Camry',
-      rentalPrice: 50,
-      availability: true,
-      features: ['AC', 'Automatic', 'GPS'],
-      location: 'New York',
-      images: ['https://dummyimage.com/300x200'],
-    });
+    // Create 10 dummy reservations (each reservation associates a user with a random car)
+    const reservations = [];
+    for (let i = 0; i < 10; i++) {
+      const user = users[i];
+      // Randomly pick a car from the cars array
+      const randomIndex = Math.floor(Math.random() * cars.length);
+      const car = cars[randomIndex];
 
-    const car2 = new Car({
-      make: 'Honda',
-      carModel: 'Civic',
-      rentalPrice: 40,
-      availability: true,
-      features: ['AC', 'Manual'],
-      location: 'Los Angeles',
-      images: ['https://dummyimage.com/300x200'],
-    });
+      // Set rental dates: start today and end after (i+1) days
+      const rentalStart = new Date();
+      const rentalEnd = new Date();
+      rentalEnd.setDate(rentalStart.getDate() + (i + 1));
 
-    await car1.save();
-    await car2.save();
-    console.log('Dummy cars created');
+      const reservation = new Reservation({
+        userId: user._id,
+        carId: car._id,
+        rentalStart,
+        rentalEnd,
+        status: 'confirmed',
+      });
+      await reservation.save();
+      reservations.push(reservation);
+    }
+    console.log('10 Dummy reservations created');
 
-    // Create dummy reservation for user1 with car1
-    const reservation1 = new Reservation({
-      userId: user1._id,
-      carId: car1._id,
-      rentalStart: new Date('2025-03-01'),
-      rentalEnd: new Date('2025-03-05'),
-      status: 'confirmed',
-    });
-
-    await reservation1.save();
-    console.log('Dummy reservation created');
-
-    // Create dummy payment for the above reservation
-    const payment1 = new Payment({
-      reservationId: reservation1._id,
-      userId: user1._id,
-      amount: 200,
-      paymentStatus: 'successful',
-      transactionId: 'txn_123456789',
-    });
-
-    await payment1.save();
-    console.log('Dummy payment created');
+    // Create 10 dummy payments (one for each reservation)
+    for (let i = 0; i < reservations.length; i++) {
+      const reservation = reservations[i];
+      // For demonstration, set a dummy amount; you can calculate based on rentalPrice and rental period
+      const payment = new Payment({
+        reservationId: reservation._id,
+        userId: reservation.userId,
+        amount: 100 + i * 10, // dummy amount variation
+        paymentStatus: 'successful',
+        transactionId: `txn_${i}_${Date.now()}`,
+      });
+      await payment.save();
+    }
+    console.log('10 Dummy payments created');
 
     console.log('Seed data inserted successfully');
     process.exit(0);
