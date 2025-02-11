@@ -1,5 +1,5 @@
 // src/controllers/userController.ts
-import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { RequestHandler } from 'express';
 import User, { IUser } from '../models/User';
 import bcrypt from 'bcrypt';
 
