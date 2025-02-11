@@ -24,6 +24,15 @@ export const createPayment = async (req: Request, res: Response) => {
   }
 };
 
+export const getAllPayments = async (req: Request, res: Response) => {
+  try {
+    const payments = await Payment.find({});
+    res.json(payments);
+  } catch (error) {
+    res.status(400).json({ message: 'Error fetching payments', error });
+  }
+};
+
 export const paymentWebhook = async (req: Request, res: Response) => {
   try {
     // Validate and process the webhook payload from your payment gateway.
